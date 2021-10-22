@@ -11,11 +11,11 @@ let y;
 // var ballRadius = 10;
 
 // // paddle
-// var paddleHeight = 10;
-// var paddleWidth = 75;
-// var paddleX = (canvas.width - paddleWidth) / 2;
-// var rightPressed = false;
-// var leftPressed = false;
+let paddleHeight = 10;
+let paddleWidth = 75;
+let paddleX;
+// let rightPressed = false;
+// let leftPressed = false;
 
 // // brick
 // var brickRowCount = 3;
@@ -47,14 +47,43 @@ socket.on('connect', () => {
   socket.emit('canvas', { width: canvas.width, height: canvas.height });
 
   // receive latest x,y position
-  socket.on('gameLogic', ({ positionX, positionY }) => {
+  socket.on('gameLogic', ({ positionX, positionY, paddlePositionX }) => {
     x = positionX;
     y = positionY;
+    paddleX = paddlePositionX;
+  });
+
+  socket.on('gameState', (text) => {
+    alert(text);
+    document.location.reload();
   });
 
   // draw circle on canvas
   draw();
 });
+
+document.addEventListener('keydown', keyDownHandler, false);
+document.addEventListener('keyup', keyUpHandler, false);
+
+function keyDownHandler(e) {
+  if (e.key == 'Right' || e.key == 'ArrowRight') {
+    // rightPressed = true;
+    socket.emit('rightPressed', true);
+  } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
+    // leftPressed = true;
+    socket.emit('leftPressed', true);
+  }
+}
+
+function keyUpHandler(e) {
+  if (e.key == 'Right' || e.key == 'ArrowRight') {
+    // rightPressed = false;
+    socket.emit('rightPressed', false);
+  } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
+    // leftPressed = false;
+    socket.emit('leftPressed', false);
+  }
+}
 
 function drawBall() {
   ctx.beginPath();
@@ -64,9 +93,18 @@ function drawBall() {
   ctx.closePath();
 }
 
+function drawPaddle() {
+  ctx.beginPath();
+  ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+  ctx.fillStyle = '#0095DD';
+  ctx.fill();
+  ctx.closePath();
+}
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBall();
+  drawPaddle();
 
   requestAnimationFrame(draw);
 }
