@@ -4,8 +4,8 @@ let ctx = canvas.getContext('2d');
 // var randomColor;
 
 // // ball
-let x;
-let y;
+// let x;
+// let y;
 // var dx = 2;
 // var dy = -2;
 // var ballRadius = 10;
@@ -38,18 +38,21 @@ let y;
 //   }
 // }
 
+let gameData;
+
 const socket = io();
 
 socket.on('connect', () => {
   console.log('You are connected...');
 
-  // send default ball x,y position
-  socket.emit('canvas', { width: canvas.width, height: canvas.height });
+  // receive latest game data
+  socket.on('gameLogic', (user) => {
+    gameData = user;
+  });
 
-  // receive latest x,y position
-  socket.on('gameLogic', ({ positionX, positionY }) => {
-    x = positionX;
-    y = positionY;
+  socket.on('gameOver', (text) => {
+    alert(text);
+    document.location.reload();
   });
 
   // draw circle on canvas
@@ -57,18 +60,56 @@ socket.on('connect', () => {
 });
 
 function drawBall() {
-  ctx.beginPath();
-  ctx.arc(x, y, 10, 0, Math.PI * 2);
-  ctx.fillStyle = '#0095DD';
-  ctx.fill();
-  ctx.closePath();
+  if (gameData) {
+    const { x, y } = gameData;
+    // console.log({ x, y });
+
+    ctx.beginPath();
+    ctx.arc(x, y, 10, 0, Math.PI * 2);
+    ctx.fillStyle = '#0095DD';
+    ctx.fill();
+    ctx.closePath();
+  }
+}
+
+function drawPaddle() {
+  if (gameData) {
+    const { paddleX, canvasHeight, paddleHeight, paddleWidth } = gameData;
+
+    ctx.beginPath();
+    ctx.rect(paddleX, canvasHeight - paddleHeight, paddleWidth, paddleHeight);
+    ctx.fillStyle = '#0095DD';
+    ctx.fill();
+    ctx.closePath();
+  }
 }
 
 function draw() {
+  socket.emit('runGame');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBall();
+  drawPaddle();
 
   requestAnimationFrame(draw);
+}
+
+document.addEventListener('keydown', keyDownHandler, false);
+document.addEventListener('keyup', keyUpHandler, false);
+
+function keyDownHandler(e) {
+  if (e.key == 'Right' || e.key == 'ArrowRight') {
+    socket.emit('rightPressed', true);
+  } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
+    socket.emit('leftPressed', true);
+  }
+}
+
+function keyUpHandler(e) {
+  if (e.key == 'Right' || e.key == 'ArrowRight') {
+    socket.emit('rightPressed', false);
+  } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
+    socket.emit('leftPressed', false);
+  }
 }
 
 // function drawBall() {
