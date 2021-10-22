@@ -9,6 +9,12 @@ app.use(express.static(`${__dirname}/../client`));
 const server = http.createServer(app);
 const io = socketio(server);
 
+//canvas
+let canvasWidth;
+let canvasHeight;
+
+// ball
+let ballRadius = 10;
 let positionX;
 let positionY;
 let dx = 2;
@@ -27,9 +33,11 @@ io.on('connection', (socket) => {
   console.log('User connected...');
 
   // receive default ball x,y position
-  socket.on('canvas', ({ x, y }) => {
-    positionX = x;
-    positionY = y;
+  socket.on('canvas', ({ width, height }) => {
+    canvasWidth = width;
+    canvasHeight = height;
+    positionX = canvasWidth / 2;
+    positionY = canvasHeight - 30;
   });
 
   // keep updating x,y position
@@ -45,6 +53,19 @@ io.on('connection', (socket) => {
 function gameLogic() {
   positionX += dx;
   positionY += dy;
+
+  if (
+    positionX + dx > canvasWidth - ballRadius ||
+    positionX + dx < ballRadius
+  ) {
+    dx = -dx;
+  }
+  if (
+    positionY + dy > canvasHeight - ballRadius ||
+    positionY + dy < ballRadius
+  ) {
+    dy = -dy;
+  }
 
   return { positionX, positionY };
 }

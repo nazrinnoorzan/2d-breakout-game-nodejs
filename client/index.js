@@ -1,11 +1,11 @@
-var canvas = document.getElementById('myCanvas');
-var ctx = canvas.getContext('2d');
+let canvas = document.getElementById('myCanvas');
+let ctx = canvas.getContext('2d');
 
 // var randomColor;
 
 // // ball
-var x = canvas.width / 2;
-var y = canvas.height - 30;
+let x;
+let y;
 // var dx = 2;
 // var dy = -2;
 // var ballRadius = 10;
@@ -44,7 +44,7 @@ socket.on('connect', () => {
   console.log('You are connected...');
 
   // send default ball x,y position
-  socket.emit('canvas', { x, y });
+  socket.emit('canvas', { width: canvas.width, height: canvas.height });
 
   // receive latest x,y position
   socket.on('gameLogic', ({ positionX, positionY }) => {
