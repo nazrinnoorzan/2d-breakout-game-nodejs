@@ -87,6 +87,7 @@ function draw() {
 
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
+document.addEventListener('mousemove', mouseMoveHandler, false);
 
 function keyDownHandler(e) {
   if (e.key == 'Right' || e.key == 'ArrowRight') {
@@ -102,4 +103,9 @@ function keyUpHandler(e) {
   } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
     socket.emit('leftPressed', false);
   }
+}
+
+function mouseMoveHandler(e) {
+  let relativeX = e.clientX - canvas.offsetLeft;
+  socket.emit('mouseMove', relativeX);
 }

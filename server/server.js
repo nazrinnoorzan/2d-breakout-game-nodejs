@@ -77,6 +77,13 @@ io.on('connection', (socket) => {
     cache.set(socket.id, { ...user, leftPressed: bool });
   });
 
+  socket.on('mouseMove', (mouseX) => {
+    if (mouseX > 0 && mouseX < canvasWidth) {
+      const user = cache.get(socket.id);
+      cache.set(socket.id, { ...user, paddleX: mouseX - paddleWidth / 2 });
+    }
+  });
+
   socket.on('disconnect', () => {
     cache.del(socket.id);
   });
