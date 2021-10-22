@@ -189,4 +189,5 @@ function mouseMoveHandler(e) {
   }
 }
 
+const socket = io();
 draw();
