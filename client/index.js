@@ -74,6 +74,16 @@ function drawScore() {
   }
 }
 
+function drawLives() {
+  if (gameData) {
+    const { lives } = gameData;
+
+    ctx.font = '16px Arial';
+    ctx.fillStyle = '#0095DD';
+    ctx.fillText('Lives: ' + lives, canvas.width - 65, 20);
+  }
+}
+
 function draw() {
   socket.emit('runGame');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -81,6 +91,7 @@ function draw() {
   drawBall();
   drawPaddle();
   drawScore();
+  drawLives();
 
   requestAnimationFrame(draw);
 }

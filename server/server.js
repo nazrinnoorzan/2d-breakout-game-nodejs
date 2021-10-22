@@ -54,6 +54,7 @@ const defaultState = {
   brickHeight,
   bricks,
   score: 0,
+  lives: 3,
 };
 
 io.on('connection', (socket) => {
@@ -91,8 +92,18 @@ io.on('connection', (socket) => {
 
 function gameLogic(token) {
   const user = cache.get(token);
-  let { ballRadius, x, y, dx, dy, rightPressed, leftPressed, paddleX, score } =
-    user;
+  let {
+    ballRadius,
+    x,
+    y,
+    dx,
+    dy,
+    rightPressed,
+    leftPressed,
+    paddleX,
+    score,
+    lives,
+  } = user;
 
   x += dx;
   y += dy;
@@ -118,7 +129,20 @@ function gameLogic(token) {
       dy = -dy;
       cache.set(token, { ...user, dy });
     } else {
-      io.to(token).emit('gameOver', 'GAME OVER');
+      lives--;
+      if (!lives) {
+        io.to(token).emit('gameOver', 'GAME OVER');
+      } else {
+        cache.set(token, {
+          ...user,
+          x: canvasWidth / 2,
+          y: canvasHeight - 30,
+          dx: 2,
+          dy: -2,
+          paddleX: (canvasWidth - paddleWidth) / 2,
+          lives,
+        });
+      }
     }
   }
 
