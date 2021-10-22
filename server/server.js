@@ -11,27 +11,29 @@ app.use(express.static(`${__dirname}/../client`));
 const server = http.createServer(app);
 const io = socketio(server);
 
-//canvas
+// constants
 const canvasWidth = 480;
 const canvasHeight = 320;
 const paddleHeight = 10;
 const paddleWidth = 75;
+const brickColumnCount = 5;
+const brickRowCount = 3;
+const brickWidth = 75;
+const brickHeight = 20;
+const brickPadding = 10;
+const brickOffsetTop = 30;
+const brickOffsetLeft = 30;
 
-// ball
-// let ballRadius = 10;
-// let positionX;
-// let positionY;
-// let dx = 2;
-// let dy = -2;
-
-// function defaultGame(canvas) {
-//   x = canvas.width / 2;
-//   y = canvas.height - 30;
-//   dx = 2;
-//   dy = -2;
-
-//   return { x, y, dx, dy };
-// }
+// bricks layout
+let bricks = [];
+for (let c = 0; c < brickColumnCount; c++) {
+  bricks[c] = [];
+  for (let r = 0; r < brickRowCount; r++) {
+    let brickX = c * (brickWidth + brickPadding) + brickOffsetLeft;
+    let brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
+    bricks[c][r] = { x: brickX, y: brickY, status: 1 };
+  }
+}
 
 const defaultState = {
   canvasWidth,
@@ -46,6 +48,14 @@ const defaultState = {
   paddleX: (canvasWidth - paddleWidth) / 2,
   rightPressed: false,
   leftPressed: false,
+  brickRowCount,
+  brickColumnCount,
+  brickWidth,
+  brickHeight,
+  brickPadding,
+  brickOffsetTop,
+  brickOffsetLeft,
+  bricks,
 };
 
 io.on('connection', (socket) => {
@@ -69,19 +79,6 @@ io.on('connection', (socket) => {
     cache.set(socket.id, { ...user, leftPressed: bool });
   });
 
-  // receive default ball x,y position
-  // socket.on('canvas', ({ width, height }) => {
-  //   canvasWidth = width;
-  //   canvasHeight = height;
-  //   positionX = canvasWidth / 2;
-  //   positionY = canvasHeight - 30;
-  // });
-
-  // keep updating x,y position
-  // let broadcastGameLogic = setInterval(() => {
-  //   socket.emit('gameLogic', gameLogic());
-  // }, 10);
-
   socket.on('disconnect', () => {
     cache.del(socket.id);
   });
@@ -89,13 +86,14 @@ io.on('connection', (socket) => {
 
 function gameLogic(token) {
   const user = cache.get(token);
-
   let { ballRadius, x, y, dx, dy, rightPressed, leftPressed, paddleX } = user;
 
   x += dx;
   y += dy;
 
   cache.set(token, { ...user, x, y });
+
+  collisionDetection(token);
 
   if (x + dx > canvasWidth - ballRadius || x + dx < ballRadius) {
     dx = -dx;
@@ -131,6 +129,29 @@ function gameLogic(token) {
   }
 
   return user;
+}
+
+function collisionDetection(token) {
+  const user = cache.get(token);
+  let { bricks, x, y, dy, brickWidth, brickHeight } = user;
+
+  for (let c = 0; c < brickColumnCount; c++) {
+    for (let r = 0; r < brickRowCount; r++) {
+      let b = bricks[c][r];
+      if (b.status == 1) {
+        if (
+          x > b.x &&
+          x < b.x + brickWidth &&
+          y > b.y &&
+          y < b.y + brickHeight
+        ) {
+          dy = -dy;
+          bricks[c][r] = { ...bricks[c][r], status: 0 };
+          cache.set(token, { ...user, dy, bricks });
+        }
+      }
+    }
+  }
 }
 
 server.on('error', (err) => {
