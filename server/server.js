@@ -52,10 +52,8 @@ const defaultState = {
   brickColumnCount,
   brickWidth,
   brickHeight,
-  brickPadding,
-  brickOffsetTop,
-  brickOffsetLeft,
   bricks,
+  score: 0,
 };
 
 io.on('connection', (socket) => {
@@ -86,7 +84,8 @@ io.on('connection', (socket) => {
 
 function gameLogic(token) {
   const user = cache.get(token);
-  let { ballRadius, x, y, dx, dy, rightPressed, leftPressed, paddleX } = user;
+  let { ballRadius, x, y, dx, dy, rightPressed, leftPressed, paddleX, score } =
+    user;
 
   x += dx;
   y += dy;
@@ -94,6 +93,10 @@ function gameLogic(token) {
   cache.set(token, { ...user, x, y });
 
   collisionDetection(token);
+
+  if (score == brickRowCount * brickColumnCount) {
+    io.to(token).emit('gameOver', 'YOU WIN, CONGRATULATIONS!');
+  }
 
   if (x + dx > canvasWidth - ballRadius || x + dx < ballRadius) {
     dx = -dx;
@@ -133,7 +136,7 @@ function gameLogic(token) {
 
 function collisionDetection(token) {
   const user = cache.get(token);
-  let { bricks, x, y, dy, brickWidth, brickHeight } = user;
+  let { bricks, x, y, dy, brickWidth, brickHeight, score } = user;
 
   for (let c = 0; c < brickColumnCount; c++) {
     for (let r = 0; r < brickRowCount; r++) {
@@ -147,7 +150,8 @@ function collisionDetection(token) {
         ) {
           dy = -dy;
           bricks[c][r] = { ...bricks[c][r], status: 0 };
-          cache.set(token, { ...user, dy, bricks });
+          score++;
+          cache.set(token, { ...user, dy, bricks, score });
         }
       }
     }

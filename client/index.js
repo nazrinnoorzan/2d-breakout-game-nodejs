@@ -64,12 +64,23 @@ function drawBricks() {
   }
 }
 
+function drawScore() {
+  if (gameData) {
+    const { score } = gameData;
+
+    ctx.font = '16px Arial';
+    ctx.fillStyle = '#0095DD';
+    ctx.fillText('Score: ' + score, 8, 20);
+  }
+}
+
 function draw() {
   socket.emit('runGame');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBricks();
   drawBall();
   drawPaddle();
+  drawScore();
 
   requestAnimationFrame(draw);
 }
