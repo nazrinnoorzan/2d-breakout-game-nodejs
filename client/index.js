@@ -10,14 +10,16 @@ socket.on('connect', () => {
   // receive latest game data
   socket.on('gameLogic', (user) => {
     gameData = user;
-    // render on canvas
-    draw();
+    console.log(new Date().toLocaleTimeString());
   });
 
   socket.on('gameOver', (text) => {
     alert(text);
     document.location.reload();
   });
+
+  // render on canvas
+  draw();
 });
 
 function drawBall() {
@@ -84,7 +86,7 @@ function drawLives() {
 }
 
 function draw() {
-  // socket.emit('runGame');
+  socket.emit('runGame');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBricks();
   drawBall();
@@ -92,9 +94,7 @@ function draw() {
   drawScore();
   drawLives();
 
-  console.log(new Date().toLocaleTimeString());
-
-  // requestAnimationFrame(draw);
+  requestAnimationFrame(draw);
 }
 
 document.addEventListener('keydown', keyDownHandler, false);
