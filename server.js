@@ -11,6 +11,11 @@ app.use(express.static(`${__dirname}/client`));
 const server = http.createServer(app);
 const io = socketio(server);
 
+let port = process.env.PORT;
+if (port == null || port == '') {
+  port = 3000;
+}
+
 // constants
 const canvasWidth = 480;
 const canvasHeight = 320;
@@ -193,6 +198,6 @@ server.on('error', (err) => {
   console.error(err);
 });
 
-server.listen(3000, () => {
+server.listen(port, () => {
   console.log('Server is ready...');
 });
