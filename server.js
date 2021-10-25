@@ -19,7 +19,6 @@ if (port == null || port == '') {
 // constants
 const canvasWidth = 480;
 const canvasHeight = 320;
-const paddleHeight = 10;
 const paddleWidth = 75;
 const brickColumnCount = 5;
 const brickRowCount = 3;
@@ -48,8 +47,6 @@ const defaultState = {
   y: canvasHeight - 30,
   dx: 2,
   dy: -2,
-  paddleHeight,
-  paddleWidth,
   paddleX: (canvasWidth - paddleWidth) / 2,
   rightPressed: false,
   leftPressed: false,
@@ -123,21 +120,25 @@ function gameLogic(token) {
 
   if (x + dx > canvasWidth - ballRadius || x + dx < ballRadius) {
     dx = -dx;
+    io.to(token).emit('collideWallX', dx);
     cache.set(token, { ...user, dx });
   }
 
   if (y + dy < ballRadius) {
     dy = -dy;
+    io.to(token).emit('collideWallY', dy);
     cache.set(token, { ...user, dy });
   } else if (y + dy > canvasHeight - ballRadius) {
     if (x > paddleX && x < paddleX + paddleWidth) {
       dy = -dy;
+      io.to(token).emit('collideWallY', dy);
       cache.set(token, { ...user, dy });
     } else {
       lives--;
       if (!lives) {
         io.to(token).emit('gameOver', 'GAME OVER');
       } else {
+        io.to(token).emit('resetGame');
         cache.set(token, {
           ...user,
           x: canvasWidth / 2,
@@ -151,20 +152,12 @@ function gameLogic(token) {
     }
   }
 
-  if (rightPressed) {
+  if (rightPressed && paddleX < canvasWidth - paddleWidth) {
     paddleX += 7;
     cache.set(token, { ...user, paddleX, dx, dy, x, y });
-    if (paddleX + paddleWidth > canvasWidth) {
-      paddleX = canvasWidth - paddleWidth;
-      cache.set(token, { ...user, paddleX, dx, dy, x, y });
-    }
-  } else if (leftPressed) {
+  } else if (leftPressed && paddleX > 0) {
     paddleX -= 7;
     cache.set(token, { ...user, paddleX, dx, dy, x, y });
-    if (paddleX < 0) {
-      paddleX = 0;
-      cache.set(token, { ...user, paddleX, dx, dy, x, y });
-    }
   }
 
   return user;
@@ -185,6 +178,7 @@ function collisionDetection(token) {
           y < b.y + brickHeight
         ) {
           dy = -dy;
+          io.to(token).emit('collideWallY', dy);
           bricks[c][r] = { ...bricks[c][r], status: 0 };
           score++;
           cache.set(token, { ...user, dy, bricks, score });
