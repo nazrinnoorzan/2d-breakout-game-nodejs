@@ -10,15 +10,14 @@ socket.on('connect', () => {
   // receive latest game data
   socket.on('gameLogic', (user) => {
     gameData = user;
+    // render on canvas
+    draw();
   });
 
   socket.on('gameOver', (text) => {
     alert(text);
     document.location.reload();
   });
-
-  // render on canvas
-  draw();
 });
 
 function drawBall() {
@@ -93,7 +92,9 @@ function draw() {
   drawScore();
   drawLives();
 
-  requestAnimationFrame(draw);
+  console.log(new Date().toLocaleTimeString());
+
+  // requestAnimationFrame(draw);
 }
 
 document.addEventListener('keydown', keyDownHandler, false);

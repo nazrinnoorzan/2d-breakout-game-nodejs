@@ -94,7 +94,7 @@ io.on('connection', (socket) => {
 
   const interval = setInterval(function () {
     socket.emit('gameLogic', gameLogic(socket.id));
-  }, 1000 / 30);
+  }, 10);
 
   socket.on('disconnect', () => {
     cache.del(socket.id);
