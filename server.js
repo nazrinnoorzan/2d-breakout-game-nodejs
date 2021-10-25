@@ -6,7 +6,7 @@ const NodeCache = require('node-cache');
 const cache = new NodeCache();
 const app = express();
 
-app.use(express.static(`${__dirname}/../client`));
+app.use(express.static(`${__dirname}/client`));
 
 const server = http.createServer(app);
 const io = socketio(server);
