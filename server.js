@@ -69,9 +69,11 @@ io.on('connection', (socket) => {
     cache.set(socket.id, defaultState);
   }
 
-  socket.on('runGame', () => {
-    socket.emit('gameLogic', gameLogic(socket.id));
-  });
+  socket.emit('gameLogic', gameLogic(socket.id));
+
+  // socket.on('runGame', () => {
+  //   socket.emit('gameLogic', gameLogic(socket.id));
+  // });
 
   socket.on('rightPressed', (bool) => {
     const user = cache.get(socket.id);
@@ -90,8 +92,13 @@ io.on('connection', (socket) => {
     }
   });
 
+  const interval = setInterval(function () {
+    socket.emit('gameLogic', gameLogic(socket.id));
+  }, 1000 / 30);
+
   socket.on('disconnect', () => {
     cache.del(socket.id);
+    clearInterval(interval);
   });
 });
 

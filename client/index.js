@@ -85,7 +85,7 @@ function drawLives() {
 }
 
 function draw() {
-  socket.emit('runGame');
+  // socket.emit('runGame');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBricks();
   drawBall();
