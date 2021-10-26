@@ -53,15 +53,15 @@ socket.on('connect', () => {
 });
 
 function drawBall() {
-  // if (gameData) {
-  //   const { x, y } = gameData;
+  if (gameData) {
+    const { x, y } = gameData;
 
-  ctx.beginPath();
-  ctx.arc(x, y, 10, 0, Math.PI * 2);
-  ctx.fillStyle = '#0095DD';
-  ctx.fill();
-  ctx.closePath();
-  // }
+    ctx.beginPath();
+    ctx.arc(x, y, 10, 0, Math.PI * 2);
+    ctx.fillStyle = '#0095DD';
+    ctx.fill();
+    ctx.closePath();
+  }
 }
 
 function drawPaddle() {
@@ -139,8 +139,8 @@ function draw() {
     drawScore();
     drawLives();
 
-    x += dx;
-    y += dy;
+    // x += dx;
+    // y += dy;
 
     if (rightPressed && paddleX < canvas.width - paddleWidth) {
       paddleX += 7;
