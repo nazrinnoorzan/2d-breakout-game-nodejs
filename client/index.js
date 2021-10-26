@@ -143,8 +143,10 @@ function draw() {
     // y += dy;
 
     if (rightPressed && paddleX < canvas.width - paddleWidth) {
+      socket.emit('rightPressed', true);
       paddleX += 7;
     } else if (leftPressed && paddleX > 0) {
+      socket.emit('leftPressed', true);
       paddleX -= 7;
     }
   } else {
@@ -180,5 +182,5 @@ function keyUpHandler(e) {
 
 function mouseMoveHandler(e) {
   let relativeX = e.clientX - canvas.offsetLeft;
-  socket.emit('mouseMove', relativeX);
+  // socket.emit('mouseMove', relativeX);
 }
