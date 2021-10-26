@@ -160,20 +160,20 @@ document.addEventListener('mousemove', mouseMoveHandler, false);
 
 function keyDownHandler(e) {
   if (e.key == 'Right' || e.key == 'ArrowRight') {
-    socket.emit('rightPressed', true);
+    // socket.emit('rightPressed', true);
     rightPressed = true;
   } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
-    socket.emit('leftPressed', true);
+    // socket.emit('leftPressed', true);
     leftPressed = true;
   }
 }
 
 function keyUpHandler(e) {
   if (e.key == 'Right' || e.key == 'ArrowRight') {
-    socket.emit('rightPressed', false);
+    // socket.emit('rightPressed', false);
     rightPressed = false;
   } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
-    socket.emit('leftPressed', false);
+    // socket.emit('leftPressed', false);
     leftPressed = false;
   }
 }
