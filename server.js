@@ -60,6 +60,7 @@ const defaultState = {
   currentDate: null,
   counter: 0,
   gameStart: false,
+  mouseLastPosition: 0,
 };
 
 io.on('connection', (socket) => {
@@ -71,7 +72,7 @@ io.on('connection', (socket) => {
 
   socket.on('runGame', (userAction) => {
     const user = cache.get(socket.id);
-    const { currentDate, counter, gameStart } = user;
+    const { currentDate, counter, gameStart, mouseLastPosition } = user;
     const { timestamp, rightPressed, leftPressed, mouseRelativeX } = userAction;
 
     if (!gameStart) {
@@ -86,12 +87,27 @@ io.on('connection', (socket) => {
     }
 
     if (counter > 65) {
-      cache.set(socket.id, {
-        ...user,
-        gameStart: true,
-        rightPressed,
-        leftPressed,
-      });
+      if (
+        mouseLastPosition !== mouseRelativeX &&
+        mouseRelativeX > 0 &&
+        mouseRelativeX < canvasWidth
+      ) {
+        cache.set(socket.id, {
+          ...user,
+          gameStart: true,
+          rightPressed,
+          leftPressed,
+          paddleX: mouseRelativeX - paddleWidth / 2,
+          mouseLastPosition: mouseRelativeX,
+        });
+      } else {
+        cache.set(socket.id, {
+          ...user,
+          gameStart: true,
+          rightPressed,
+          leftPressed,
+        });
+      }
       socket.emit('gameLogic', gameLogic(socket.id));
     } else {
       return;

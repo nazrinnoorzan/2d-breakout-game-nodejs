@@ -14,13 +14,13 @@ let dy = -2;
 let paddleX = (canvas.width - paddleWidth) / 2;
 let rightPressed = false;
 let leftPressed = false;
-// let mouseRelativeX;
+let mouseRelativeX;
 
 const userAction = {
   timestamp: new Date().toLocaleTimeString(),
   rightPressed,
   leftPressed,
-  // mouseRelativeX,
+  mouseRelativeX,
 };
 
 const socket = io();
@@ -141,7 +141,7 @@ function draw() {
     ...userAction,
     rightPressed,
     leftPressed,
-    // mouseRelativeX,
+    mouseRelativeX,
   });
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -196,5 +196,5 @@ function mouseMoveHandler(e) {
   if (mouseRelativeX > 0 && mouseRelativeX < canvas.width) {
     paddleX = mouseRelativeX - paddleWidth / 2;
   }
-  socket.emit('mouseMove', mouseRelativeX);
+  // socket.emit('mouseMove', mouseRelativeX);
 }
