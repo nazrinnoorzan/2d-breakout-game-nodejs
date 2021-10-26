@@ -15,6 +15,12 @@ let paddleX = (canvas.width - paddleWidth) / 2;
 let rightPressed = false;
 let leftPressed = false;
 
+const userAction = {
+  timestamp: new Date().toLocaleTimeString(),
+  rightPressed,
+  leftPressed,
+};
+
 const socket = io();
 
 socket.on('connect', () => {
@@ -129,7 +135,7 @@ function drawLoading() {
 
 function draw() {
   console.log('client to server', new Date().toLocaleTimeString());
-  socket.emit('runGame', new Date().toLocaleTimeString());
+  socket.emit('runGame', { ...userAction, rightPressed, leftPressed });
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (startGame) {
@@ -143,10 +149,8 @@ function draw() {
     // y += dy;
 
     if (rightPressed && paddleX < canvas.width - paddleWidth) {
-      socket.emit('rightPressed', true);
       paddleX += 7;
     } else if (leftPressed && paddleX > 0) {
-      socket.emit('leftPressed', true);
       paddleX -= 7;
     }
   } else {

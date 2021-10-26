@@ -69,10 +69,10 @@ io.on('connection', (socket) => {
     cache.set(socket.id, defaultState);
   }
 
-  socket.on('runGame', (timestamp) => {
+  socket.on('runGame', (userAction) => {
     const user = cache.get(socket.id);
     const { currentDate, counter, gameStart } = user;
-    // console.log(currentDate);
+    const { timestamp, rightPressed, leftPressed } = userAction;
 
     if (!gameStart) {
       if (currentDate === timestamp) {
@@ -80,14 +80,18 @@ io.on('connection', (socket) => {
           ...user,
           counter: counter + 1,
         });
-        // console.log(counter);
       } else {
         cache.set(socket.id, { ...user, currentDate: timestamp, counter: 0 });
       }
     }
 
     if (counter > 65) {
-      cache.set(socket.id, { ...user, gameStart: true });
+      cache.set(socket.id, {
+        ...user,
+        gameStart: true,
+        rightPressed,
+        leftPressed,
+      });
       socket.emit('gameLogic', gameLogic(socket.id));
     } else {
       return;
