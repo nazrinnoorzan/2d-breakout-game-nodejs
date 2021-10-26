@@ -57,6 +57,9 @@ const defaultState = {
   bricks,
   score: 0,
   lives: 3,
+  currentDate: null,
+  counter: 0,
+  gameStart: false,
 };
 
 io.on('connection', (socket) => {
@@ -66,8 +69,29 @@ io.on('connection', (socket) => {
     cache.set(socket.id, defaultState);
   }
 
-  socket.on('runGame', () => {
-    socket.emit('gameLogic', gameLogic(socket.id));
+  socket.on('runGame', (timestamp) => {
+    const user = cache.get(socket.id);
+    const { currentDate, counter, gameStart } = user;
+    // console.log(currentDate);
+
+    if (!gameStart) {
+      if (currentDate === timestamp) {
+        cache.set(socket.id, {
+          ...user,
+          counter: counter + 1,
+        });
+        // console.log(counter);
+      } else {
+        cache.set(socket.id, { ...user, currentDate: timestamp, counter: 0 });
+      }
+    }
+
+    if (counter > 65) {
+      cache.set(socket.id, { ...user, gameStart: true });
+      socket.emit('gameLogic', gameLogic(socket.id));
+    } else {
+      return;
+    }
   });
 
   socket.on('rightPressed', (bool) => {

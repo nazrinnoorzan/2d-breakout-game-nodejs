@@ -1,6 +1,7 @@
 let canvas = document.getElementById('myCanvas');
 let ctx = canvas.getContext('2d');
 let gameData;
+let startGame = false;
 
 const paddleWidth = 75;
 const paddleHeight = 10;
@@ -20,6 +21,7 @@ socket.on('connect', () => {
   // receive latest game data
   socket.on('gameLogic', (user) => {
     gameData = user;
+    startGame = true;
     console.log('server to client', new Date().toLocaleTimeString());
   });
 
@@ -113,21 +115,24 @@ function drawLives() {
 
 function draw() {
   console.log('client to server', new Date().toLocaleTimeString());
-  socket.emit('runGame');
+  socket.emit('runGame', new Date().toLocaleTimeString());
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBricks();
-  drawBall();
-  drawPaddle();
-  drawScore();
-  drawLives();
 
-  x += dx;
-  y += dy;
+  if (startGame) {
+    drawBricks();
+    drawBall();
+    drawPaddle();
+    drawScore();
+    drawLives();
 
-  if (rightPressed && paddleX < canvas.width - paddleWidth) {
-    paddleX += 7;
-  } else if (leftPressed && paddleX > 0) {
-    paddleX -= 7;
+    x += dx;
+    y += dy;
+
+    if (rightPressed && paddleX < canvas.width - paddleWidth) {
+      paddleX += 7;
+    } else if (leftPressed && paddleX > 0) {
+      paddleX -= 7;
+    }
   }
 
   requestAnimationFrame(draw);
