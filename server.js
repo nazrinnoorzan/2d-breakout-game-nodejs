@@ -144,18 +144,18 @@ function gameLogic(token) {
 
   if (x + dx > canvasWidth - ballRadius || x + dx < ballRadius) {
     dx = -dx;
-    io.to(token).emit('collideWallX', dx);
+    // io.to(token).emit('collideWallX', dx);
     cache.set(token, { ...user, dx });
   }
 
   if (y + dy < ballRadius) {
     dy = -dy;
-    io.to(token).emit('collideWallY', dy);
+    // io.to(token).emit('collideWallY', dy);
     cache.set(token, { ...user, dy });
   } else if (y + dy > canvasHeight - ballRadius) {
     if (x > paddleX && x < paddleX + paddleWidth) {
       dy = -dy;
-      io.to(token).emit('collideWallY', dy);
+      // io.to(token).emit('collideWallY', dy);
       cache.set(token, { ...user, dy });
     } else {
       lives--;
@@ -202,7 +202,7 @@ function collisionDetection(token) {
           y < b.y + brickHeight
         ) {
           dy = -dy;
-          io.to(token).emit('collideWallY', dy);
+          // io.to(token).emit('collideWallY', dy);
           bricks[c][r] = { ...bricks[c][r], status: 0 };
           score++;
           cache.set(token, { ...user, dy, bricks, score });

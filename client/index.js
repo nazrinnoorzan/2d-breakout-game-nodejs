@@ -27,13 +27,13 @@ socket.on('connect', () => {
     console.log('server to client', new Date().toLocaleTimeString());
   });
 
-  socket.on('collideWallX', (value) => {
-    dx = value;
-  });
+  // socket.on('collideWallX', (value) => {
+  //   dx = value;
+  // });
 
-  socket.on('collideWallY', (value) => {
-    dy = value;
-  });
+  // socket.on('collideWallY', (value) => {
+  //   dy = value;
+  // });
 
   socket.on('resetGame', () => {
     x = canvas.width / 2;
