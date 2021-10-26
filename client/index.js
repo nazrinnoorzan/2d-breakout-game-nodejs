@@ -1,21 +1,24 @@
 let canvas = document.getElementById('myCanvas');
 let ctx = canvas.getContext('2d');
+
+// store latest ball position, score, lives, .etc
 let gameData;
+
+// if true, client will start receive game data
 let startGame = false;
+
 let loading = true;
 let loadingText = 'Loading';
 
+// variable related to paddle & user action
 const paddleWidth = 75;
 const paddleHeight = 10;
-let x = canvas.width / 2;
-let y = canvas.height - 30;
-let dx = 2;
-let dy = -2;
 let paddleX = (canvas.width - paddleWidth) / 2;
 let rightPressed = false;
 let leftPressed = false;
 let mouseRelativeX;
 
+// default user action data to be sent to server
 const userAction = {
   timestamp: new Date().toLocaleTimeString(),
   rightPressed,
@@ -32,25 +35,15 @@ socket.on('connect', () => {
   socket.on('gameLogic', (user) => {
     gameData = user;
     startGame = true;
-    console.log('server to client', new Date().toLocaleTimeString());
+    // console.log('server to client', new Date().toLocaleTimeString());
   });
 
-  // socket.on('collideWallX', (value) => {
-  //   dx = value;
-  // });
-
-  // socket.on('collideWallY', (value) => {
-  //   dy = value;
-  // });
-
+  // reset paddle to default position
   socket.on('resetGame', () => {
-    x = canvas.width / 2;
-    y = canvas.height - 30;
-    dx = 2;
-    dy = -2;
     paddleX = (canvas.width - paddleWidth) / 2;
   });
 
+  // alert window after game end (either win or lose)
   socket.on('gameOver', (text) => {
     alert(text);
     document.location.reload();
@@ -62,6 +55,7 @@ socket.on('connect', () => {
 
 function drawBall() {
   if (gameData) {
+    // constantly get the latest ball position from the server
     const { x, y } = gameData;
 
     ctx.beginPath();
@@ -73,15 +67,11 @@ function drawBall() {
 }
 
 function drawPaddle() {
-  // if (gameData) {
-  //   const { paddleX, canvasHeight } = gameData;
-
   ctx.beginPath();
   ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
   ctx.fillStyle = '#0095DD';
   ctx.fill();
   ctx.closePath();
-  // }
 }
 
 function drawBricks() {
@@ -136,24 +126,25 @@ function drawLoading() {
 }
 
 function draw() {
-  console.log('client to server', new Date().toLocaleTimeString());
+  // console.log('client to server', new Date().toLocaleTimeString());
+
+  // keep sending to server so that server start moving the ball & knows user action
   socket.emit('runGame', {
     ...userAction,
     rightPressed,
     leftPressed,
     mouseRelativeX,
   });
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // only start render the object when startGame is true
   if (startGame) {
     drawBricks();
     drawBall();
     drawPaddle();
     drawScore();
     drawLives();
-
-    // x += dx;
-    // y += dy;
 
     if (rightPressed && paddleX < canvas.width - paddleWidth) {
       paddleX += 7;
@@ -173,20 +164,16 @@ document.addEventListener('mousemove', mouseMoveHandler, false);
 
 function keyDownHandler(e) {
   if (e.key == 'Right' || e.key == 'ArrowRight') {
-    // socket.emit('rightPressed', true);
     rightPressed = true;
   } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
-    // socket.emit('leftPressed', true);
     leftPressed = true;
   }
 }
 
 function keyUpHandler(e) {
   if (e.key == 'Right' || e.key == 'ArrowRight') {
-    // socket.emit('rightPressed', false);
     rightPressed = false;
   } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
-    // socket.emit('leftPressed', false);
     leftPressed = false;
   }
 }
@@ -196,5 +183,4 @@ function mouseMoveHandler(e) {
   if (mouseRelativeX > 0 && mouseRelativeX < canvas.width) {
     paddleX = mouseRelativeX - paddleWidth / 2;
   }
-  // socket.emit('mouseMove', mouseRelativeX);
 }

@@ -66,6 +66,7 @@ const defaultState = {
 io.on('connection', (socket) => {
   console.log('User connected...');
 
+  // assign new game state if user is new
   if (!cache.has(socket.id)) {
     cache.set(socket.id, defaultState);
   }
@@ -75,6 +76,7 @@ io.on('connection', (socket) => {
     const { currentDate, counter, gameStart, mouseLastPosition } = user;
     const { timestamp, rightPressed, leftPressed, mouseRelativeX } = userAction;
 
+    // keep checking if websocket data is stable
     if (!gameStart) {
       if (currentDate === timestamp) {
         cache.set(socket.id, {
@@ -86,7 +88,9 @@ io.on('connection', (socket) => {
       }
     }
 
+    // if websocket data is stable, start the game & sending latest game state to client
     if (counter > 65) {
+      // check if mouse is move in client side
       if (
         mouseLastPosition !== mouseRelativeX &&
         mouseRelativeX > 0 &&
@@ -111,23 +115,6 @@ io.on('connection', (socket) => {
       socket.emit('gameLogic', gameLogic(socket.id));
     } else {
       return;
-    }
-  });
-
-  // socket.on('rightPressed', (bool) => {
-  //   const user = cache.get(socket.id);
-  //   cache.set(socket.id, { ...user, rightPressed: bool });
-  // });
-
-  // socket.on('leftPressed', (bool) => {
-  //   const user = cache.get(socket.id);
-  //   cache.set(socket.id, { ...user, leftPressed: bool });
-  // });
-
-  socket.on('mouseMove', (mouseX) => {
-    if (mouseX > 0 && mouseX < canvasWidth) {
-      const user = cache.get(socket.id);
-      cache.set(socket.id, { ...user, paddleX: mouseX - paddleWidth / 2 });
     }
   });
 
@@ -156,6 +143,7 @@ function gameLogic(token) {
 
   cache.set(token, { ...user, x, y });
 
+  // check ball collision with the bricks
   collisionDetection(token);
 
   if (score == brickRowCount * brickColumnCount) {
@@ -164,18 +152,15 @@ function gameLogic(token) {
 
   if (x + dx > canvasWidth - ballRadius || x + dx < ballRadius) {
     dx = -dx;
-    // io.to(token).emit('collideWallX', dx);
     cache.set(token, { ...user, dx });
   }
 
   if (y + dy < ballRadius) {
     dy = -dy;
-    // io.to(token).emit('collideWallY', dy);
     cache.set(token, { ...user, dy });
   } else if (y + dy > canvasHeight - ballRadius) {
     if (x > paddleX && x < paddleX + paddleWidth) {
       dy = -dy;
-      // io.to(token).emit('collideWallY', dy);
       cache.set(token, { ...user, dy });
     } else {
       lives--;
@@ -222,7 +207,6 @@ function collisionDetection(token) {
           y < b.y + brickHeight
         ) {
           dy = -dy;
-          // io.to(token).emit('collideWallY', dy);
           bricks[c][r] = { ...bricks[c][r], status: 0 };
           score++;
           cache.set(token, { ...user, dy, bricks, score });
