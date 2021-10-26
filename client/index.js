@@ -14,11 +14,13 @@ let dy = -2;
 let paddleX = (canvas.width - paddleWidth) / 2;
 let rightPressed = false;
 let leftPressed = false;
+// let mouseRelativeX;
 
 const userAction = {
   timestamp: new Date().toLocaleTimeString(),
   rightPressed,
   leftPressed,
+  // mouseRelativeX,
 };
 
 const socket = io();
@@ -135,7 +137,12 @@ function drawLoading() {
 
 function draw() {
   console.log('client to server', new Date().toLocaleTimeString());
-  socket.emit('runGame', { ...userAction, rightPressed, leftPressed });
+  socket.emit('runGame', {
+    ...userAction,
+    rightPressed,
+    leftPressed,
+    // mouseRelativeX,
+  });
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (startGame) {
@@ -185,6 +192,9 @@ function keyUpHandler(e) {
 }
 
 function mouseMoveHandler(e) {
-  let relativeX = e.clientX - canvas.offsetLeft;
-  // socket.emit('mouseMove', relativeX);
+  mouseRelativeX = e.clientX - canvas.offsetLeft;
+  if (mouseRelativeX > 0 && mouseRelativeX < canvas.width) {
+    paddleX = mouseRelativeX - paddleWidth / 2;
+  }
+  socket.emit('mouseMove', mouseRelativeX);
 }

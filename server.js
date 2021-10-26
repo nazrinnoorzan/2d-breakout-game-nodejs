@@ -72,7 +72,7 @@ io.on('connection', (socket) => {
   socket.on('runGame', (userAction) => {
     const user = cache.get(socket.id);
     const { currentDate, counter, gameStart } = user;
-    const { timestamp, rightPressed, leftPressed } = userAction;
+    const { timestamp, rightPressed, leftPressed, mouseRelativeX } = userAction;
 
     if (!gameStart) {
       if (currentDate === timestamp) {
@@ -98,15 +98,15 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('rightPressed', (bool) => {
-    const user = cache.get(socket.id);
-    cache.set(socket.id, { ...user, rightPressed: bool });
-  });
+  // socket.on('rightPressed', (bool) => {
+  //   const user = cache.get(socket.id);
+  //   cache.set(socket.id, { ...user, rightPressed: bool });
+  // });
 
-  socket.on('leftPressed', (bool) => {
-    const user = cache.get(socket.id);
-    cache.set(socket.id, { ...user, leftPressed: bool });
-  });
+  // socket.on('leftPressed', (bool) => {
+  //   const user = cache.get(socket.id);
+  //   cache.set(socket.id, { ...user, leftPressed: bool });
+  // });
 
   socket.on('mouseMove', (mouseX) => {
     if (mouseX > 0 && mouseX < canvasWidth) {
