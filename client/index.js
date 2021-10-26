@@ -20,7 +20,7 @@ socket.on('connect', () => {
   // receive latest game data
   socket.on('gameLogic', (user) => {
     gameData = user;
-    console.log(new Date().toLocaleTimeString());
+    // console.log(new Date().toLocaleTimeString());
   });
 
   socket.on('collideWallX', (value) => {
@@ -112,6 +112,7 @@ function drawLives() {
 }
 
 function draw() {
+  console.log(new Date().toLocaleTimeString());
   socket.emit('runGame');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBricks();
