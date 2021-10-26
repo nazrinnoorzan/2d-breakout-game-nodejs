@@ -2,6 +2,8 @@ let canvas = document.getElementById('myCanvas');
 let ctx = canvas.getContext('2d');
 let gameData;
 let startGame = false;
+let loading = true;
+let loadingText = 'Loading';
 
 const paddleWidth = 75;
 const paddleHeight = 10;
@@ -113,6 +115,18 @@ function drawLives() {
   }
 }
 
+function drawLoading() {
+  ctx.fillStyle = '#FFF';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.font = '15pt Arial';
+  ctx.fillStyle = '#000';
+  ctx.fillText(loadingText, 200, 200);
+  if (loadingText == 'Loading.....') {
+    loadingText = 'Loading';
+  }
+  loadingText = loadingText + '.';
+}
+
 function draw() {
   console.log('client to server', new Date().toLocaleTimeString());
   socket.emit('runGame', new Date().toLocaleTimeString());
@@ -133,6 +147,8 @@ function draw() {
     } else if (leftPressed && paddleX > 0) {
       paddleX -= 7;
     }
+  } else {
+    drawLoading();
   }
 
   requestAnimationFrame(draw);
